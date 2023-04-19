@@ -7,7 +7,7 @@ using std::cin;
 using std::srand;
 using std::rand;
 
-#include <time.h>
+#include <ctime>
 using std::time;
 
 template <typename T>
@@ -104,6 +104,25 @@ void posfixado(Arvore<T> *arvore)
 }
 
 template <typename T>
+bool buscarNaArvore(No<T> *raiz, T dado)
+{
+    if (raiz == NULL) return false;
+
+    if (raiz->dado == dado) return true;
+
+    if (raiz->dado >= dado)
+        return buscarNaArvore(raiz->esquerda, dado);
+    else
+        return buscarNaArvore(raiz->direita, dado);
+}
+
+template <typename T>
+bool buscarNaArvore(Arvore<T> *arvore, T dado)
+{
+    return buscarNaArvore(arvore->raiz, dado);
+}
+
+template <typename T>
 bool buscarNaArvore(No<T> *raiz, int chave)
 {
     if (raiz == NULL) return false;
@@ -112,8 +131,7 @@ bool buscarNaArvore(No<T> *raiz, int chave)
 
     if (raiz->chave >= chave)
         return buscarNaArvore(raiz->esquerda, chave);
-
-    if (raiz->chave < chave)
+    else
         return buscarNaArvore(raiz->direita, chave);
 }
 
@@ -121,6 +139,25 @@ template <typename T>
 bool buscarNaArvore(Arvore<T> *arvore, int chave)
 {
     return buscarNaArvore(arvore->raiz, chave);
+}
+
+template <typename T>
+void quantidadeDeNosDaArvore(No<T> *raiz, int &contador)
+{
+    if (raiz == NULL) return;
+    
+    contador++;
+    quantidadeDeNosDaArvore(raiz->esquerda, contador);
+    quantidadeDeNosDaArvore(raiz->direita, contador);
+}
+
+template <typename T>
+int quantidadeDeNosDaArvore(Arvore<T> *arvore)
+{
+    int contador = 0;
+    quantidadeDeNosDaArvore(arvore->raiz, contador);
+
+    return contador;
 }
 
 template <typename T>
@@ -272,7 +309,14 @@ int main()
         inserirNaArvore(arvore, alfabeto[vezes], alfabeto[vezes]);
         vezes++;
     } while (vezes < 26);
-
+    
+    char dado = 'F';
+    if (buscarNaArvore(arvore, dado)) {
+        cout << "Esta na arvore" << endl;
+    } else {
+        cout << "Nao esta na arvore" << endl;
+    }
+    
     if (buscarNaArvore(arvore, 'C')) {
         cout << "Esta na arvore" << endl;
     } else {
@@ -291,6 +335,10 @@ int main()
     cout << "Altura: ";
     int altura = alturaDaArvore(arvore);
     cout << altura << endl;
+    cout << endl;
+    cout << "Quantidade de nos: ";
+    int quanti_nos = quantidadeDeNosDaArvore(arvore);
+    cout << quanti_nos << endl;
 
     for (int i = 65; i < 91; i++) {
         cout << endl;
