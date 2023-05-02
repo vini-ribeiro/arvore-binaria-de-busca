@@ -455,7 +455,7 @@ int main()
 	inicializarArvore(ordenadaCPF);
 	inicializarArvore(ordenadaNome);
 
-	inserirArvore(ordenadaCPF, ordenadaNome, 21162782061, "vinicius", "programador");
+	inserirArvore(ordenadaCPF, ordenadaNome, 21162782061, "vinicius", "padeiro");
 
 	inserirArvore(ordenadaCPF, ordenadaNome, 123, "lucas", "pedreiro");
 
@@ -463,7 +463,9 @@ int main()
 
 	inserirArvore(ordenadaCPF, ordenadaNome, 56, "anna", "engenheira quimica");
 
-	inserirArvore(ordenadaCPF, ordenadaNome, 321, "rodrigo", "desenvolvedor java");
+	inserirArvore(ordenadaCPF, ordenadaNome, 321, "rodrigo", "bicheiro");
+
+	inserirArvore(ordenadaCPF, ordenadaNome, 56, "anna", "engenheira quimica");
 
 	infixado(ordenadaCPF);
 	cout << endl;
@@ -483,7 +485,7 @@ int main()
 	cout << endl;
 	cout << endl;
 
-	No<void> *temp = pesquisarRegistroArvore(&ordenadaNome, "ana");
+	No<void> *temp = pesquisarRegistroArvore(&ordenadaNome, "lucas");
 	if (temp != NULL) {
 		cout << temp->pessoa->nome << "  " << temp->pessoa->CPF << "  " << temp->pessoa->profissao << endl;
 	} 
