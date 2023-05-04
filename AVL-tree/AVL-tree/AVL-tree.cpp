@@ -473,7 +473,7 @@ int main()
 
 	infixado(ordenadaNome);
 	cout << endl;
-	cout << endl;
+	cout << endl; 
 
 	retirarArvore(&ordenadaCPF, &ordenadaNome, 56);
 
