@@ -314,21 +314,18 @@ No<T>* retirarArvore(No<T> *&raiz, string &nome)
 
 	if (raiz->pessoa->nome == nome) {
 		if (raiz->esquerda == NULL && raiz->direita == NULL) {
-			delete raiz->pessoa;
 			delete raiz;
 			return NULL;
 		}
 
 		if (raiz->esquerda != NULL && raiz->direita == NULL) {
 			No<T> *temp = raiz->esquerda;
-			delete raiz->pessoa;
 			delete raiz;
 			return temp;
 		}
 
 		if (raiz->esquerda == NULL && raiz->direita != NULL) {
 			No<T> *temp = raiz->direita;
-			delete raiz->pessoa;
 			delete raiz;
 			return temp;
 		}
@@ -360,23 +357,38 @@ No<T>* retirarArvore(No<T> *&raiz, string &nome)
 	return raiz;
 }
 
-template <typename T, typename D>
-void retirarArvore(Arvore<T> *arvoreCPF, Arvore<T> *arvoreNome, D dado)
-{	
-	No<T> *temp;
-
-	if (typeid(dado) == typeid(string))
-		temp = pesquisarRegistroArvore(arvoreNome, dado);
-	else
-		temp = pesquisarRegistroArvore(arvoreCPF, dado);
+template <typename T>
+void retirarArvore(Arvore<T> *arvoreCPF, Arvore<T> *arvoreNome, long long int CPF)
+{
+	No<T> *temp = pesquisarRegistroArvore(arvoreCPF, CPF);
 
 	if (temp == NULL) return;
 
-	long long int CPF = temp->pessoa->CPF;
+	Pessoa *pessoa = temp->pessoa;
+
 	string nome = temp->pessoa->nome;
 
-	retirarArvore(arvoreCPF->raiz, CPF);
-	retirarArvore(arvoreNome->raiz, nome);
+	arvoreCPF->raiz = retirarArvore(arvoreCPF->raiz, CPF);
+	arvoreNome->raiz = retirarArvore(arvoreNome->raiz, nome);
+
+	delete pessoa;
+}
+
+template <typename T>
+void retirarArvore(Arvore<T> *arvoreCPF, Arvore<T> *arvoreNome, string nome)
+{	
+	No<T> *temp = pesquisarRegistroArvore(arvoreNome, nome);
+
+	if (temp == NULL) return;
+
+	Pessoa *pessoa = temp->pessoa;
+
+	long long int CPF = temp->pessoa->CPF;
+
+	arvoreCPF->raiz = retirarArvore(arvoreCPF->raiz, CPF);
+	arvoreNome->raiz = retirarArvore(arvoreNome->raiz, nome);
+
+	delete pessoa;
 }
 /// INSERCAO E RETIRADA DA ARVORE ACIMA
 
@@ -447,6 +459,13 @@ void mostrar_arvore(Arvore<T> &a)
 	mostrar_arvore(a.raiz, 2);
 }
 
+void menu()
+{
+	cout << "1 - Inserir um novo registro" << endl;
+	cout << "2 - Remover um registro" << endl;
+	cout << "3 - " << endl;
+}
+
 int main()
 {
 	Arvore<void> ordenadaCPF;
@@ -455,40 +474,9 @@ int main()
 	inicializarArvore(ordenadaCPF);
 	inicializarArvore(ordenadaNome);
 
-	inserirArvore(ordenadaCPF, ordenadaNome, 21162782061, "vinicius", "padeiro");
+	int op = 0;
 
-	inserirArvore(ordenadaCPF, ordenadaNome, 123, "lucas", "pedreiro");
 
-	inserirArvore(ordenadaCPF, ordenadaNome, 456, "ana", "gerente");
-
-	inserirArvore(ordenadaCPF, ordenadaNome, 56, "anna", "engenheira quimica");
-
-	inserirArvore(ordenadaCPF, ordenadaNome, 321, "rodrigo", "bicheiro");
-
-	inserirArvore(ordenadaCPF, ordenadaNome, 56, "anna", "engenheira quimica");
-
-	infixado(ordenadaCPF);
-	cout << endl;
-	cout << endl;
-
-	infixado(ordenadaNome);
-	cout << endl;
-	cout << endl; 
-
-	retirarArvore(&ordenadaCPF, &ordenadaNome, 56);
-
-	infixado(ordenadaCPF);
-	cout << endl;
-	cout << endl;
-
-	infixado(ordenadaNome);
-	cout << endl;
-	cout << endl;
-
-	No<void> *temp = pesquisarRegistroArvore(&ordenadaNome, "lucas");
-	if (temp != NULL) {
-		cout << temp->pessoa->nome << "  " << temp->pessoa->CPF << "  " << temp->pessoa->profissao << endl;
-	} 
 
 	return 0;
 }
