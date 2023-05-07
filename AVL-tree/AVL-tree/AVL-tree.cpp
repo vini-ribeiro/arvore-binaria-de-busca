@@ -44,13 +44,14 @@ int calcular_altura(No<T> *raiz)
 }
 
 template <typename T>
-void buscar_maior(No<T> *raiz, Pessoa &pessoa)
+No<T>* buscar_maior(No<T> *raiz)
 {
-	if (raiz == NULL) return;
+	if (raiz == NULL) return NULL;
+	
 	if (raiz->direita != NULL)
-		buscar_maior(raiz->direita, pessoa);
-	else
-		pessoa = *(raiz->pessoa);
+		buscar_maior(raiz->direita);
+	
+	return raiz;
 }
 
 template <typename T>
@@ -280,14 +281,21 @@ No<T>* retirarArvore(No<T> *&raiz, long long int &CPF)
 			return temp;
 		}
 
-		Pessoa pessoa;
-		buscar_maior(raiz->esquerda, pessoa);
+		No<T> *maiorNoEsquerda = buscar_maior(raiz->esquerda);
+		raiz->pessoa = maiorNoEsquerda->pessoa;
 		
-		raiz->pessoa->CPF = pessoa.CPF;
-		raiz->pessoa->nome = pessoa.nome;
-		raiz->pessoa->profissao = pessoa.profissao;
-		raiz->esquerda = retirarArvore(raiz->esquerda, pessoa.CPF);
+		CPF = raiz->pessoa->CPF;
 		
+		raiz->esquerda = retirarArvore(raiz->esquerda, CPF);
+		
+		int altura_esquerda = buscar_altura(raiz->esquerda);
+		int altura_direita = buscar_altura(raiz->direita);
+
+		if (altura_esquerda - altura_direita == 2 || altura_esquerda - altura_direita == -2)
+			raiz = rotacao_avl(raiz);
+		else
+			raiz->altura = (altura_esquerda > altura_direita) ? altura_esquerda + 1 : altura_direita + 1;
+
 		return raiz;
 	}
 
@@ -330,13 +338,20 @@ No<T>* retirarArvore(No<T> *&raiz, string &nome)
 			return temp;
 		}
 
-		Pessoa pessoa;
-		buscar_maior(raiz->esquerda, pessoa);
+		No<T> *maiorNoEsquerda = buscar_maior(raiz->esquerda);
+		raiz->pessoa = maiorNoEsquerda->pessoa;
 
-		raiz->pessoa->CPF = pessoa.CPF;
-		raiz->pessoa->nome = pessoa.nome;
-		raiz->pessoa->profissao = pessoa.profissao;
-		raiz->esquerda = retirarArvore(raiz->esquerda, pessoa.nome);
+		nome = raiz->pessoa->nome;
+
+		raiz->esquerda = retirarArvore(raiz->esquerda, nome);
+
+		int altura_esquerda = buscar_altura(raiz->esquerda);
+		int altura_direita = buscar_altura(raiz->direita);
+
+		if (altura_esquerda - altura_direita == 2 || altura_esquerda - altura_direita == -2)
+			raiz = rotacao_avl(raiz);
+		else
+			raiz->altura = (altura_esquerda > altura_direita) ? altura_esquerda + 1 : altura_direita + 1;
 
 		return raiz;
 	}
@@ -358,37 +373,37 @@ No<T>* retirarArvore(No<T> *&raiz, string &nome)
 }
 
 template <typename T>
-void retirarArvore(Arvore<T> *arvoreCPF, Arvore<T> *arvoreNome, long long int CPF)
+void retirarArvore(Arvore<T> &arvoreCPF, Arvore<T> &arvoreNome, long long int CPF)
 {
-	No<T> *temp = pesquisarRegistroArvore(arvoreCPF, CPF);
+	No<T> *temp = pesquisarRegistroArvore(&arvoreCPF, CPF);
 
 	if (temp == NULL) return;
 
-	Pessoa *pessoa = temp->pessoa;
-
+	Pessoa *pessoaExcluida = temp->pessoa;
+	
 	string nome = temp->pessoa->nome;
 
-	arvoreCPF->raiz = retirarArvore(arvoreCPF->raiz, CPF);
-	arvoreNome->raiz = retirarArvore(arvoreNome->raiz, nome);
+	arvoreCPF.raiz = retirarArvore(arvoreCPF.raiz, CPF);
+	arvoreNome.raiz = retirarArvore(arvoreNome.raiz, nome);
 
-	delete pessoa;
+	delete pessoaExcluida;
 }
 
 template <typename T>
-void retirarArvore(Arvore<T> *arvoreCPF, Arvore<T> *arvoreNome, string nome)
+void retirarArvore(Arvore<T> &arvoreCPF, Arvore<T> &arvoreNome, string nome)
 {	
-	No<T> *temp = pesquisarRegistroArvore(arvoreNome, nome);
+	No<T> *temp = pesquisarRegistroArvore(&arvoreNome, nome);
 
 	if (temp == NULL) return;
 
-	Pessoa *pessoa = temp->pessoa;
+	Pessoa *pessoaExcluida = temp->pessoa;
 
 	long long int CPF = temp->pessoa->CPF;
 
-	arvoreCPF->raiz = retirarArvore(arvoreCPF->raiz, CPF);
-	arvoreNome->raiz = retirarArvore(arvoreNome->raiz, nome);
+	arvoreCPF.raiz = retirarArvore(arvoreCPF.raiz, CPF);
+	arvoreNome.raiz = retirarArvore(arvoreNome.raiz, nome);
 
-	delete pessoa;
+	delete pessoaExcluida;
 }
 /// INSERCAO E RETIRADA DA ARVORE ACIMA
 
@@ -448,9 +463,9 @@ void mostrar_arvore(No<T> *raiz, int tab)
 		cout << "*";
 		return;
 	}
-	cout << raiz->pessoa->nome;
-	mostrar_arvore(raiz->esquerda, tab + 3);
-	mostrar_arvore(raiz->direita, tab + 3);
+	cout << raiz->pessoa->nome << " (" << raiz->pessoa->CPF << ")";
+	mostrar_arvore(raiz->esquerda, tab + 6);
+	mostrar_arvore(raiz->direita, tab + 6);
 }
 
 template <typename T>
@@ -474,9 +489,28 @@ int main()
 	inicializarArvore(ordenadaCPF);
 	inicializarArvore(ordenadaNome);
 
-	int op = 0;
+	int cpfs[] = {3, 2, 1, 4, 5, 6, 7};
+	const char *nomes[] = {"vini", "leti", "rodr", "luca", "juli", "ana", "mile"};
+	const char *profissoes[] = {"bicheiro", "empresaria", "maconheiro", "coach", "hipster", "metanfetamineira", "caminhoneira"};
 
+	for (int i = 0; i < 7; i++)
+		inserirArvore(ordenadaCPF, ordenadaNome, cpfs[i], nomes[i], profissoes[i]);
 
+	infixado(ordenadaCPF);
+
+	cout << endl << endl;
+
+	infixado(ordenadaNome);
+
+	retirarArvore(ordenadaCPF, ordenadaNome, 6);
+
+	cout << endl << endl;
+
+	infixado(ordenadaCPF);
+
+	cout << endl << endl;
+
+	infixado(ordenadaNome);
 
 	return 0;
 }
