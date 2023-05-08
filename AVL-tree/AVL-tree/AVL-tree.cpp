@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include "windows.h"
 
 using namespace std;
 
@@ -381,7 +382,7 @@ void retirarArvore(Arvore<T> &arvoreCPF, Arvore<T> &arvoreNome, long long int CP
 
 	Pessoa *pessoaExcluida = temp->pessoa;
 	
-	string nome = temp->pessoa->nome;
+	string nome = pessoaExcluida->nome;
 
 	arvoreCPF.raiz = retirarArvore(arvoreCPF.raiz, CPF);
 	arvoreNome.raiz = retirarArvore(arvoreNome.raiz, nome);
@@ -454,31 +455,18 @@ void posfixado(Arvore<T> &arvore)
 }
 /// METODOS DE CAMINHAMENTO ACIMA
 
-template <typename T>
-void mostrar_arvore(No<T> *raiz, int tab)
-{
-	cout << endl;
-	for (int i = 0; i < tab; i++) cout << " ";
-	if (raiz == NULL) {
-		cout << "*";
-		return;
-	}
-	cout << raiz->pessoa->nome << " (" << raiz->pessoa->CPF << ")";
-	mostrar_arvore(raiz->esquerda, tab + 6);
-	mostrar_arvore(raiz->direita, tab + 6);
-}
-
-template <typename T>
-void mostrar_arvore(Arvore<T> &a)
-{
-	mostrar_arvore(a.raiz, 2);
-}
-
 void menu()
 {
+	cout << "Insira o numero da operacao desejada (1 - 8)" << endl;
 	cout << "1 - Inserir um novo registro" << endl;
-	cout << "2 - Remover um registro" << endl;
-	cout << "3 - " << endl;
+	cout << "2 - Remover um registro por CPF" << endl;
+	cout << "3 - Remover um registro por nome" << endl;
+	cout << "4 - Pesquisar um registro por CPF" << endl;
+	cout << "5 - Pesquisar um registro por nome" << endl;
+	cout << "6 - Listar todas as informacoes cadastradas ordenadas por CPF" << endl;
+	cout << "7 - Listar todas as informacoes cadastradas ordenadas por nome" << endl;
+	cout << "8 - Limpar tela" << endl;
+	cout << "9 - Sair" << endl;
 }
 
 int main()
@@ -489,28 +477,106 @@ int main()
 	inicializarArvore(ordenadaCPF);
 	inicializarArvore(ordenadaNome);
 
-	int cpfs[] = {3, 2, 1, 4, 5, 6, 7};
-	const char *nomes[] = {"vini", "leti", "rodr", "luca", "juli", "ana", "mile"};
-	const char *profissoes[] = {"bicheiro", "empresaria", "maconheiro", "coach", "hipster", "metanfetamineira", "caminhoneira"};
+	No<void> *aux = NULL;
+	long long int CPF = 0;
+	string nome = "", profissao = "";
+	int opcao = 0;
 
-	for (int i = 0; i < 7; i++)
-		inserirArvore(ordenadaCPF, ordenadaNome, cpfs[i], nomes[i], profissoes[i]);
+	do {
+		menu();
+		cin >> opcao;
 
-	infixado(ordenadaCPF);
+		switch (opcao) {
+			case 1:
+			
+			cout << "Insira os dados da pessoa:" << endl;
+			cout << "CPF:" << endl;
+			cin >> CPF;
+			cout << "Nome:" << endl;
+			getline(cin, nome);
+			cout << "Profissao:" << endl;
+			getline(cin, profissao);
 
-	cout << endl << endl;
+			aux = pesquisarRegistroArvore(&ordenadaCPF, CPF);
+			
+			if (aux == NULL)
+				inserirArvore(ordenadaCPF, ordenadaNome, CPF, nome, profissao);
+			else 
+				cout << "CPF já cadastrado!" << endl;
 
-	infixado(ordenadaNome);
+			aux = NULL;
 
-	retirarArvore(ordenadaCPF, ordenadaNome, 6);
+			break;
 
-	cout << endl << endl;
+			case 2:
+			
+			cout << "Insira o CPF para remover: ";
+			cin >> CPF;
+			retirarArvore(ordenadaCPF, ordenadaNome, CPF);
+			
+			break;
 
-	infixado(ordenadaCPF);
+			case 3:
+			
+			cout << "Insira o nome completo para remover: ";
+			getline(cin, nome);
+			retirarArvore(ordenadaCPF, ordenadaNome, nome);
+			
+			break;
 
-	cout << endl << endl;
+			case 4:
+			
+			cout << "Insira o CPF para pesquisar: ";
+			cin >> CPF;
+			
+			aux = pesquisarRegistroArvore(&ordenadaCPF, CPF);
+			
+			if (aux != NULL)
+				cout << setw(15) << left << aux->pessoa->nome << " | " << setw(13) << left << aux->pessoa->CPF << " | " << aux->pessoa->profissao << endl;
 
-	infixado(ordenadaNome);
+			aux = NULL;
+
+			break;
+
+			case 5:
+			
+			cout << "Insira o nome completo para pesquisar: ";
+			getline(cin, nome);
+			
+			aux = pesquisarRegistroArvore(&ordenadaCPF, nome);
+			
+			if (aux != NULL)
+				cout << setw(15) << left << aux->pessoa->nome << " | " << setw(13) << left << aux->pessoa->CPF << " | " << aux->pessoa->profissao << endl;
+
+			aux = NULL;
+
+			break;
+
+			case 6:
+			
+			cout << "Tabela com todas as informacoes por ordem crescente de CPF:" << endl;
+			infixado(ordenadaCPF);
+
+			break;
+
+			case 7:
+			
+			cout << "Tabela com todas as informacoes por ordem crescente de nome:" << endl;
+			infixado(ordenadaNome);
+
+			break;
+
+			case 8:
+
+			system("cls");
+
+			break;
+
+			default:
+			break;
+		}
+
+	} while (opcao > 0 && opcao < 9);
 
 	return 0;
 }
