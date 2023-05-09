@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <stdio.h>
 #include "windows.h"
 
 using namespace std;
@@ -492,6 +493,7 @@ int main()
 			cout << "Insira os dados da pessoa:" << endl;
 			cout << "CPF:" << endl;
 			cin >> CPF;
+			fflush(stdin);
 			cout << "Nome:" << endl;
 			getline(cin, nome);
 			cout << "Profissao:" << endl;
